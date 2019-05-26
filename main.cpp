@@ -1,3 +1,5 @@
+#define _GLIBCXX_USE_RANDOM_TR1
+
 #include <set>
 #include <random>
 #include <cassert>

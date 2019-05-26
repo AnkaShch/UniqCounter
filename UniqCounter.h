@@ -11,8 +11,7 @@ public:
     int get_uniq_num() const;
 
 private:
-    const int MAX_RANGES_NUMB = 30*1024 / sizeof(std::pair<int, int>);
-    //const int MAX_RANGES_NUMB = 4;
+    const int MAX_RANGES_NUMB = 3*1024 / sizeof(std::pair<int, int>);
     std::vector<std::pair<int, int>> ranges;
     double error = 0;
     int covered = 0;
