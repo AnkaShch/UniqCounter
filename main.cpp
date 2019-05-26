@@ -5,6 +5,8 @@
 #include <iostream>
 #include "UniqCounter.h"
 
+#define _GLIBCXX_USE_RANDOM_TR1
+
 double relative_error(int expected, int got) {
     return abs(got - expected) / (double) expected;
 }

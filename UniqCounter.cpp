@@ -9,10 +9,8 @@ void UniqCounter::add(int x) {
         covered++;
         return;
     }
-    iterator it = ranges.begin();
-    while (it != ranges.end() && (*it).first <= x) {
-        it++;
-    }
+    iterator it = std::__lower_bound(ranges.begin(), ranges.end(), x,
+                            [](iterator range, int x){return (*range).first <= x;});
     if (it == ranges.end()) {
         it--;
         if (x <= (*it).second + 1) {
@@ -69,11 +67,9 @@ void UniqCounter::add_new_range(int x) {
 }
 
 void UniqCounter::insert_range(int x) {
-    iterator it = ranges.begin();
-    while (it != ranges.end() && (*it).second <= x) {
-        it++;
-    }
-    ranges.insert(it++, {x, x});
+    iterator it = std::__lower_bound(ranges.begin(), ranges.end(), x,
+                                     [](iterator range, int x){return (*range).first <= x;});
+    ranges.insert(it, {x, x});
     covered++;
 }
 
@@ -89,23 +85,14 @@ void UniqCounter::unite_two_range(int x) {
             min_error = err;
         }
     }
-    err = abs(ranges[0].first - x);
-    int index_x = 0;
-    for (int i = 1; i < ranges.size(); ++i) {
-        if (err > abs(x - ranges[i - 1].second)) {
-            err = abs(x - ranges[i - 1].second);
-            index_x = i -  1;
-        }
-        if (err > abs(ranges[i].first - x)) {
-            err = abs(ranges[i].first - x);
-            index_x = i;
-        }
+    iterator it = std::__lower_bound(ranges.begin(), ranges.end(), x,
+                                     [](iterator range, int x){return (*range).first <= x;});
+    int index_x = it - ranges.begin();
+    if (index_x == 0) {
+        err = ranges[0].first - x;
+    } else {
+        err = std::min(ranges[index_x].first - x, x - ranges[index_x - 1].second);
     }
-    if (err > abs(ranges[ranges.size() - 1].second - x)) {
-        err = abs(ranges[ranges.size() - 1].second - x);
-        index_x = ranges.size() - 1;
-    }
-
     if (min_error < err) {
         error += ranges[index].first - ranges[index - 1].second;
         covered += ranges[index].first - ranges[index - 1].second - 1;
@@ -114,9 +101,9 @@ void UniqCounter::unite_two_range(int x) {
         insert_range(x);
     } else {
         if (x > ranges[index_x].second) {
-            error += x - ranges[index_x].second;
-            covered += x - ranges[index_x].second;
-            ranges[index_x].second = x;
+            error += x - ranges[index_x - 1].second;
+            covered += x - ranges[index_x - 1].second;
+            ranges[index_x - 1].second = x;
         } else {
             error += ranges[index_x].first - x;
             covered += ranges[index_x].first - x;
